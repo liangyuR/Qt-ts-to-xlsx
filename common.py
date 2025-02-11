@@ -10,11 +10,13 @@ __all__ = [
     'CheckFileExists',
 ]
 
-def GetTsFiles(ts_dir):
+def GetTsFiles(ts_dir, recursive=False):
     ts_files = []
     for file in os.listdir(ts_dir):
         if file.endswith('.ts'):
             ts_files.append(os.path.join(ts_dir, file))
+        elif recursive and os.path.isdir(os.path.join(ts_dir, file)):
+            ts_files.extend(GetTsFiles(os.path.join(ts_dir, file), recursive))
     return ts_files
 
 def CheckFileExists(file_path):
