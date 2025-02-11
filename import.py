@@ -7,6 +7,7 @@
 
 import argparse
 import os
+import concurrent.futures
 
 from common import *
 
@@ -25,6 +26,11 @@ PARSER.add_argument('-r', '--recursive', action='store_true', default=False,
 
 args = PARSER.parse_args()
 
+def process_ts_file(ts_file, excel_data):
+    ts_data = TsData(ts_file)
+    ts_data.Update(excel_data)
+    ts_data.Save()
+
 if __name__ == '__main__':
     excel_file_path = args.input
     ts_dir = args.output
@@ -39,9 +45,9 @@ if __name__ == '__main__':
 
     # load ts 文件，修改它
     ts_files = GetTsFiles(ts_dir, recursive)
-    for ts_file in ts_files:
-        ts_data = TsData(ts_file)
-        ts_data.Update(excel_data)
-        ts_data.Save()
+
+    # Use ThreadPoolExecutor to process TS files in parallel
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(lambda ts_file: process_ts_file(ts_file, excel_data), ts_files)
 
     print("Import finished")
