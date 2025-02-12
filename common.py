@@ -48,8 +48,11 @@ class TsData:
             class_name = context.find('name').text
             for message in context.findall('message'):
                 source = message.find('source').text
+                comment_element = message.find('comment')
+                comment = comment_element.text if comment_element is not None else ''
                 translation = message.find('translation')
-                self.data[(class_name, source)] = translation.text
+
+                self.data[(class_name, source, comment)] = translation.text
 
     def Update(self, excel_data):
         for key, value in excel_data.data.items():
@@ -61,14 +64,20 @@ class TsData:
             class_name = context.find('name').text
             for message in context.findall('message'):
                 source = message.find('source').text
-                if (class_name, source) in self.data:
-                    translation = message.find('translation')
-                    translation.text = self.data[(class_name, source)]
 
-                    if(self.data[(class_name, source)] != ''):
-                        translation.set('type', 'finished')
+                comment = message.find('comment')
+                comment_text = comment.text if comment is not None else ''
+
+                if (class_name, source, comment_text) in self.data:
+                    translation = message.find('translation')
+                    translation.text = self.data[(class_name, source, comment_text)]
+
+                    if self.data[(class_name, source, comment_text)] != '':
+                        if 'type' in translation.attrib:
+                            del translation.attrib['type']
                     else:
-                        translation.set('type', 'unfinished') 
+                        translation.set('type', 'unfinished')
+                        translation.text = ''
 
         # Save to file with proper XML declaration, DOCTYPE, and encoding
         with open(self.ts_file, 'w', encoding='utf-8') as f:
@@ -96,17 +105,20 @@ class ExcelData:
         for _, row in tqdm(df.iterrows(), desc='Loading Excel data', total=len(df)):
             class_name = row['ClassName']
             source = row['Source']
-            
+            comment = row['Comment']
+            if pd.isna(comment):
+                comment = ''
+
             # 初始化该key的字典
-            if (class_name, source) not in self.data:
-                self.data[(class_name, source)] = {}
+            if (class_name, source, comment) not in self.data:
+                self.data[(class_name, source, comment)] = {}
             
             # 对每种语言类型的翻译进行处理
             for lang in ['zh_CN', 'en_US', 'ja_JP', 'ko_KR']:
                 if pd.notna(row[lang]):  # 检查翻译是否存在
-                    self.data[(class_name, source)][lang] = row[lang]
+                    self.data[(class_name, source, comment)][lang] = row[lang]
                 else:
-                    self.data[(class_name, source)][lang] = ''
+                    self.data[(class_name, source, comment)][lang] = ''
 
     def PrintData(self):
         for key, value in self.data.items():
@@ -126,17 +138,18 @@ class ExcelData:
                 rows[key][ts_data.lang_type] = value
 
         df_rows = []
-        for (class_name, source), translations in tqdm(rows.items(), desc='Preparing Excel rows'):
+        for (class_name, source, comment), translations in tqdm(rows.items(), desc='Preparing Excel rows'):
             df_rows.append({
                 'ClassName': class_name,
                 'Source': source,
+                'Comment': comment,
                 'zh_CN': translations['zh_CN'],
                 'en_US': translations['en_US'],
                 'ja_JP': translations['ja_JP'],
                 'ko_KR': translations['ko_KR']
             })
 
-        self.data = pd.DataFrame(df_rows, columns=['ClassName', 'Source', 'zh_CN', 'en_US', 'ja_JP', 'ko_KR'])
+        self.data = pd.DataFrame(df_rows, columns=['ClassName', 'Source', 'Comment', 'zh_CN', 'en_US', 'ja_JP', 'ko_KR'])
         print('Saving Excel file...')
         
         if not self.excel_file.endswith('.xlsx'):

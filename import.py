@@ -50,4 +50,7 @@ if __name__ == '__main__':
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(lambda ts_file: process_ts_file(ts_file, excel_data), ts_files)
 
+    # for ts_file in ts_files:
+    #     process_ts_file(ts_file, excel_data)
+
     print("Import finished")

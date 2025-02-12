@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Import Script",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/import.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-i=D:\\project\\QtTsXlsxConverter\\TS-2025-0212-PickPlace.xlsx",
+                "-o=D:\\project\\xyz-studio-max\\src\\gui\\motion\\PickPlace"
+            ]
+        }
+    ]
+}
