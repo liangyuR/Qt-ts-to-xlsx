@@ -114,8 +114,8 @@ class ExcelData:
                 self.data[(class_name, source, comment)] = {}
             
             # 对每种语言类型的翻译进行处理
-            for lang in ['zh_CN', 'en_US', 'ja_JP', 'ko_KR']:
-                if pd.notna(row[lang]):  # 检查翻译是否存在
+            for lang in ['zh_CN', 'en_US', 'ja_JP', 'ko_KR', 'de_DE']:
+                if pd.notna(row[lang]):  # Check if translation exists
                     self.data[(class_name, source, comment)][lang] = row[lang]
                 else:
                     self.data[(class_name, source, comment)][lang] = ''
@@ -133,7 +133,8 @@ class ExcelData:
                         'zh_CN': '',
                         'en_US': '',
                         'ja_JP': '',
-                        'ko_KR': ''
+                        'ko_KR': '',
+                        'de_DE': ''
                     }
                 rows[key][ts_data.lang_type] = value
 
@@ -146,10 +147,11 @@ class ExcelData:
                 'zh_CN': translations['zh_CN'],
                 'en_US': translations['en_US'],
                 'ja_JP': translations['ja_JP'],
-                'ko_KR': translations['ko_KR']
+                'ko_KR': translations['ko_KR'],
+                'de_DE': translations['de_DE']
             })
 
-        self.data = pd.DataFrame(df_rows, columns=['ClassName', 'Source', 'Comment', 'zh_CN', 'en_US', 'ja_JP', 'ko_KR'])
+        self.data = pd.DataFrame(df_rows, columns=['ClassName', 'Source', 'Comment', 'zh_CN', 'en_US', 'ja_JP', 'ko_KR', 'de_DE'])
         print('Saving Excel file...')
         
         if not self.excel_file.endswith('.xlsx'):

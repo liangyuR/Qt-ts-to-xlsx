@@ -19,7 +19,7 @@ PARSER = argparse.ArgumentParser(
 PARSER.add_argument('-i', '--input', type=str,
                     help='TS file directory, non-recursive search')
 PARSER.add_argument('-o', '--output', type=str,
-                    help='Export excel file path.')
+                    help='Export excel file path. default is ts_dir BaseName')
 PARSER.add_argument('-r', '--recursive', action='store_true', default=False,
                     help='Enable recursive search for TS files.')
 
@@ -33,6 +33,8 @@ def process_ts_file(ts_file):
 if __name__ == '__main__':
     ts_dir = args.input
     excel_file_path = args.output
+    if excel_file_path is None:
+        excel_file_path = os.path.basename(ts_dir)
     recursive = args.recursive  # Get the recursive flag
 
     # TS-DATA-excel_file
